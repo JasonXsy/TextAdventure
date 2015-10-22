@@ -14,22 +14,13 @@
 int main(int argc, const char * argv[]) {
     
     
-    Authentication a("Arsalan","236320");
-        if (a.login()){
-            std::cout<<"The user exist"<<std::endl;
-        }
+    // Authentication a("Arsalan","236320");
+    //     if (a.login()){
+    //         std::cout<<"The user exist"<<std::endl;
+    //     }
     
     
-//    Authentication b("Khashayar","23630asd");
-//    b.signUp();
-    
-    
-//    Authentication a("Ali", "Jaghi");
-//    if (a.login()){
-//        std::cout<<"The user exist"<<std::endl;
-//    }
-//    
-//    std::cout<<"Arsalan Noroozzadeh"<<std::endl;
+
     return 0;
     
 }
