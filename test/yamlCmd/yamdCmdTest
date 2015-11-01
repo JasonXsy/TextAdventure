@@ -1,0 +1,24 @@
+#include <iostream>
+#include <string>
+#include <yaml-cpp/yaml.h>
+
+using namespace std;
+
+int int main(int argc, char const *argv[])
+{
+
+    YAML::Emmiter cmdOut;
+    cmdOut << YAML::BeginMap;
+    cmdOut << YAML::Key << "move";
+    cmdOut << YAML::Value<< <<YAML::BeginSeq::"mv" << "move" <<
+          "go"<< YAML::EndSeq;
+    cmdOut << YAML::EndMap;
+    fs.open ("../../yamlfiles/cmd/cmd_glbal.yaml");
+   string cmd;
+   while(fs >> cmd){
+    cout<< cmd;
+   }
+    fout << out.c_str() ;
+    // cmdOut << out.c_str();
+    return 0;
+}
