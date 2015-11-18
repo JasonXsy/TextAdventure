@@ -10,3 +10,6 @@ personalNotes.txt
 .DS_Store
 tmpbuild/
 CMakeLists.txt~
+*.h~
+*.cpp~
+*.txt~
