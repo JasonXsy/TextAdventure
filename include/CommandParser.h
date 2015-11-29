@@ -27,8 +27,9 @@ public:
     std::string validateMoveArgv(std::vector<std::string>& cmd);
     std::string validateLookArgv(std::vector<std::string>& cmd);
     std::string validateAttackArgv(vector<string> &cmd);
-    std::string carryoutAttack(NPC npcToAttack);
-    std::string carryoutAttack(User userToAttack);
+    std::string carryOutAttack(shared_ptr<NPC> npcToAttack, shared_ptr<Room> room);
+    std::string carryOutAttack(shared_ptr<User> userToAttack, shared_ptr<Room> room);
+    std::string userCombat(shared_ptr<User> userToAttack, shared_ptr<Room> room);
     std::string validateTakeArgv(std::vector<std::string>& cmd);
     std::string validateUsdeArgv(std::vector<std::string>& cmd);
     std::string validateCheckArgv(std::vector<std::string>& cmd);

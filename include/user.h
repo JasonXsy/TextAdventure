@@ -26,6 +26,9 @@ class User : public Entity {
      User(User &user); //Copy constructor added by Sarah
     ~User();
 
+    void setInCombat(bool inCombat);
+    bool isInCombat();
+
     void setUserName(string s);
     string getUserName();
 
@@ -81,7 +84,11 @@ class User : public Entity {
     int getGold();
     void setGold(int gold);
     void increaseGold(int gold);
-		
+
+    void setBeginCombatListener(function<void( std::function<void(void)> )> newBeginCombatListener);
+
+    void listenForBeginCombat(std::function<void(void)> messageReceivedCallback);	
+ 
  private:
     const int START_LEVEL = 1;
     const int KILLED_NPC_EXPERIENCE = 100;
@@ -92,6 +99,7 @@ class User : public Entity {
     weak_ptr<Room> currentRoom;
 
     std::function<void(string)> messageDisplayer;
+    std::function<void( std::function<void(void)> )> beginCombatListener;
 
     AbilityStats* userStats;
     Inventory* inventory;
@@ -100,6 +108,8 @@ class User : public Entity {
     int playerXP;
 
     bool isAdmin;
+
+    bool inCombat = false;
 
     void setPassword(string s);
 

@@ -74,16 +74,29 @@ string CommandParser::validateAttackArgv(vector<string> &cmd){
   else{
     reformatTokens(cmd);
 
+    string result = "";
+
     auto room = PlayerOne->getRoom( );
-    auto entityToAttack = room->findEntity( cmd.at( 1 ) );
+    auto possibleUser = room -> getOneUser(cmd.at(1));
+    if(possibleUser != NULL){
+      auto entityToAttack = possibleUser;
+      result = carryOutAttack(entityToAttack, room);
+    }
 
-    string result = carryoutAttack(entityToAttack);
+    else{
+      auto possibleNPC = room -> getNPC(cmd.at(1));
 
+      if(possibleNPC != NULL){
+	auto entityToAttack = possibleUser;
+	result = carryOutAttack(entityToAttack, room);
+      }
+   
     return result;
+    }
   }
 }
 
-string CommandParser::carryoutAttack(NPC npcToAttack){
+string CommandParser::carryOutAttack(shared_ptr<NPC> npcToAttack, shared_ptr<Room> room){
   auto userDamage = PlayerOne->getStrength();
   npcToAttack->damage( userDamage );
 
@@ -123,58 +136,101 @@ string CommandParser::carryoutAttack(NPC npcToAttack){
   return result;
 }
 
-string CommandParser::carryoutAttack(User userToAttack){
-  /*PlayerOne -> setBattle(true);
- 
-   if(userToAttack -> isInBattle() == false){
-    userToAttack -> requestBattle(PlayerOne -> getName());
+string CommandParser::carryOutAttack(shared_ptr<User> userToAttack, shared_ptr<Room> room){
+  PlayerOne -> setInCombat(true);
+  string result = "";
+
+   if(userToAttack -> isInCombat() == false){
+    userToAttack -> requestAttack(PlayerOne -> getUserName());
     
-    //HANDLE DENIED REQUEST HERE!!!
+    userToAttack -> listenForBeginCombat([userToAttack, this, room](){
+	if(userToAttack -> isInCombat()) {
+	  string result = userCombat(userToAttack, room);
+	  return result;
+	}
+	else {
+	  // PlayerOne -> notifySession(userToAttack -> getUserName() + " declined your request to fight");
+	  string result = (userToAttack -> getUserName()) + " declined your request to fight";
+	  return result;
+	}
+      });
   }
-  else{*/
-    auto userDamage = PlayerOne->getStrength();
-    npcToAttack->damage( userDamage );
-
-    if(userToAttack -> isAlive()){
-      auto userDamage = userToAttack->getDamage();
-      PlayerOne->damage( userDamage );
-     }
-
-    string npcShortDesc = userToAttack->getUserName;
-    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " just attacked " + userShortDesc+ "\n");
-
-
-    string result = "";
-
-    // inform user how much damage they did to the NPC
-    string message = " dealt " + to_string(userDamage) + " to " + npcShortDesc + ". \n";
-    if(userToAttack -> isAlive()){
-      message += userShortDesc + " is still alive";
-    }
-
-    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + message );
-
-    result += "you " + message;
-
-    // player is dead
-    if( !PlayerOne->isAlive() ) {
-      room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " died\n");
-      result += "you died\n";
-    }
-
-    if( !userToAttack->isAlive() ) {
-      room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " killed " + userShortDesc);
-      result += "you killed " + userShortDesc + "\n";
-
-      PlayerOne->increaseXP( 100 );
-      int deadUserGold = userToAttack -> getGold();
-      int prizeGold = deadUserGold / 2;
-      userToAttack -> setGold(deadUserGold - prizeGold);
-      PlayerOne -> increaseGold(prizeGold);
-    }
-
+  else{
+    result = userCombat(userToAttack, room);
     return result;
+    // EXAMPLE COMBAT CODE
+    // if(!playerToAttack->isInCombat()) {
+    //   playerToAttack->notifySession(PlayerOne->getName() + " wants to fight you\n");
+
+    //   playerToAttack->listenForBeginCombat([](){  // this is a callback
+    //     // called when the player accepts or declines combat
+    //     if(playerToAttack->isInCombat()) {
+    //       // perform combat
+    //     } else {
+    //       PlayerOne->notifySession(playerToAttack->getName() + " declined your request to fight\n");
+    //     }
+
+    //   }); // this is the end of the callback
+    // } else {
+    //   // perform combat like normal(no need to ask someone who is already in combat mobe)
     // }
+
+
+    // be careful because in this case we will return from the function before the code inside the callback is called
+    // this could result in weird errors.
+    // might wana return something like "waiting for other play to enter combat"
+    //return result;
+    // }
+  }
+
+   result = "Waiting on combatee response";
+   return result;
+}
+
+string CommandParser::userCombat(shared_ptr<User> userToAttack, shared_ptr<Room> room){
+  auto userDamage = PlayerOne -> getStrength();
+  userToAttack -> damage( userDamage );
+
+  if(userToAttack -> isAlive()){
+    auto userDamage = userToAttack -> getStrength();
+    PlayerOne -> damage( userDamage );
+  }
+
+  string userShortDesc = userToAttack -> getUserName();
+  room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " just attacked " + userShortDesc+ "\n");
+
+
+  string result = "";
+
+  // inform user how much damage they did to the other user
+  string message = " dealt " + to_string(userDamage) + " to " + userShortDesc + ". \n";
+
+  if(userToAttack -> isAlive()){
+    message += userShortDesc + " is still alive\n";
+  }
+
+  room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + message );
+
+  result += "you " + message;
+
+  // player is dead
+  if( !PlayerOne->isAlive() ) {
+    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " died\n");
+    result += "you died\n";
+  }
+
+  if( !userToAttack->isAlive() ) {
+    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " killed " + userShortDesc);
+    result += "you killed " + userShortDesc + "\n";
+
+    PlayerOne->increaseXP( 100 );
+    int deadUserGold = userToAttack -> getGold();
+    int prizeGold = deadUserGold / 2;
+    userToAttack -> setGold(deadUserGold - prizeGold);
+    PlayerOne -> increaseGold(prizeGold);
+  }
+
+  return result;
 }
 
 string CommandParser::validateTakeArgv(std::vector<std::string>& cmd){
@@ -384,7 +440,7 @@ string CommandParser::processCommand(string &in){
       return validateMoveArgv(words);
    }
    else if(isAttackNPCsCmd(words)){
-      return validateAttackNPCArgv(words);
+      return validateAttackArgv(words);
    }
    else if(isLookCmd(words)){
       return validateLookArgv(words);

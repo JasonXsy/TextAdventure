@@ -86,7 +86,6 @@ shared_ptr<User> Room::getOneUser(string userName){
   }
 }
 
-
 vector<string> Room::getKeywords(){
 	return keywordList;
 }
