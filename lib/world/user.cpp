@@ -161,10 +161,6 @@ void User::setDexterity(int dexterity){
   userStats->setDexterity(dexterity);
 }
 
-void User::setHealth(int health){
-  userStats->setHealth(health);
-}
-
 void User::setIntelligence(int intelligence){
   userStats->setIntelligence(intelligence);
 }
@@ -254,6 +250,12 @@ string User::getInvItemLongDesc(string itemKeyword){
   return inventory->getItemDescription(itemKeyword);
 }
 
+bool User::requestAttack(string attackerName){
+  string message = attackerName + " is requesting to fight. Do you accept?/n";
+
+  //SOMEHOW HANDLE A RESPONSE!
+}
+
 
 // THESE ARE NOW IMPLEMENTED IN THE COMMANDPARSER validateAttackNPCArgv() method
 /*BATTLING METHODS  --  ONLY NPC SO FAR!*/
@@ -305,6 +307,18 @@ string User::getAttacked(int NPCAttack, string NPCShortDesc){ // DEPRECATED
     }
     return result;
   }
+}
+
+int User::getGold(){
+  return gold;
+}
+
+void User::setGold(int gold){
+  this->gold= gold;
+}
+
+void User::increaseGold(int gold){
+  this->gold += gold; 
 }
 
 // ADMIN ONLY METHODS

@@ -52,6 +52,7 @@ class Room {
 		string getDesc();  
 		string getExtDesc();
 		shared_ptr<NPC> getNPC(string npcName);
+		shared_ptr<User> getOneUser(string userName);
 
 		vector<string> getKeywords();
 		vector<shared_ptr<NPC>> getNPCs();

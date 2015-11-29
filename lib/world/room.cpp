@@ -74,6 +74,18 @@ shared_ptr<NPC> Room::getNPC(string npcName) {
 	return NULL;
 }
 
+shared_ptr<User> Room::getOneUser(string userName){
+  for(auto &user : userList) {
+    string userNameCheck = user -> getUserName();
+    std::transform(userNameCheck.begin(), userNameCheck.end(), userNameCheck.begin(), ::tolower);
+    std::transform(userName.begin(), userName.end(), userName.begin(), ::tolower);
+
+    if(userNameCheck == userName){
+      return user;
+    }
+  }
+}
+
 
 vector<string> Room::getKeywords(){
 	return keywordList;

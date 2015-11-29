@@ -26,7 +26,9 @@ public:
     //these will reference the world
     std::string validateMoveArgv(std::vector<std::string>& cmd);
     std::string validateLookArgv(std::vector<std::string>& cmd);
-    std::string validateAttackNPCArgv(std::vector<std::string>& cmd);
+    std::string validateAttackArgv(vector<string> &cmd);
+    std::string carryoutAttack(NPC npcToAttack);
+    std::string carryoutAttack(User userToAttack);
     std::string validateTakeArgv(std::vector<std::string>& cmd);
     std::string validateUsdeArgv(std::vector<std::string>& cmd);
     std::string validateCheckArgv(std::vector<std::string>& cmd);

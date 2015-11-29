@@ -74,8 +74,13 @@ class User : public Entity {
     int getStrength();
 
     /*BATTLING METHODS  --  ONLY NPC SO FAR  added by Jordan*/
+    bool requestAttack(string attackerName);
     string attackNPC(string npcName);
     string getAttacked(int NPCAttack, string NPCShortDesc);
+
+    int getGold();
+    void setGold(int gold);
+    void increaseGold(int gold);
 		
  private:
     const int START_LEVEL = 1;
@@ -104,4 +109,6 @@ class User : public Entity {
     void setHealth(int health);
     void setIntelligence(int intelligence);
     void setStrength(int strength);
+
+    int gold;
 };

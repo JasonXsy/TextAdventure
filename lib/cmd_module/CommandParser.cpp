@@ -67,34 +67,90 @@ string CommandParser::validateMoveArgv(vector<string> &cmd){
     }
 }
 
-string CommandParser::validateAttackNPCArgv(vector<string> &cmd){
+string CommandParser::validateAttackArgv(vector<string> &cmd){
   if(cmd.size()==1){
-      return "Usage: <attack> <NPC's name>\n";
-   }
+    return "Usage: <attack> <User or NPC name>\n";
+  }
   else{
     reformatTokens(cmd);
-    // return "attack NPC" + cmd.at(1) + "\n";
 
     auto room = PlayerOne->getRoom( );
-    auto npcToAttack = room->getNPC( cmd.at( 1 ) );
+    auto entityToAttack = room->findEntity( cmd.at( 1 ) );
+
+    string result = carryoutAttack(entityToAttack);
+
+    return result;
+  }
+}
+
+string CommandParser::carryoutAttack(NPC npcToAttack){
+  auto userDamage = PlayerOne->getStrength();
+  npcToAttack->damage( userDamage );
+
+  if(npcToAttack -> isAlive()){
+    auto npcDamage = npcToAttack->getDamage();
+    PlayerOne->damage( npcDamage );
+  }
+
+  string npcShortDesc = npcToAttack->getShortDesc();
+  room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " just attacked " + npcShortDesc+ "\n");
 
 
+  string result = "";
+
+  // inform user how much damage they did to the NPC
+  string message = " dealt " + to_string(userDamage) + " to " + npcShortDesc + ". \n";
+  message += npcShortDesc + " has " + to_string( npcToAttack->getHealth( ) ) + " health remaining\n";
+
+  room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + message );
+
+  result += "you " + message;
+
+  // player is dead
+  if( !PlayerOne->isAlive() ) {
+    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " died\n");
+    result += "you died\n";
+  }
+
+  if( !npcToAttack->isAlive() ) {
+    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " killed " + npcShortDesc);
+    result += "you killed " + npcShortDesc + "\n";
+
+    PlayerOne->increaseXP( 100 );
+    PlayerOne -> increaseGold(10);
+  }
+
+  return result;
+}
+
+string CommandParser::carryoutAttack(User userToAttack){
+  /*PlayerOne -> setBattle(true);
+ 
+   if(userToAttack -> isInBattle() == false){
+    userToAttack -> requestBattle(PlayerOne -> getName());
+    
+    //HANDLE DENIED REQUEST HERE!!!
+  }
+  else{*/
     auto userDamage = PlayerOne->getStrength();
     npcToAttack->damage( userDamage );
 
-    auto npcDamage = npcToAttack->getDamage();
-    PlayerOne->damage( npcDamage );
+    if(userToAttack -> isAlive()){
+      auto userDamage = userToAttack->getDamage();
+      PlayerOne->damage( userDamage );
+     }
 
-
-    string npcShortDesc = npcToAttack->getShortDesc();
-    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " just attacked " + npcShortDesc+ "\n");
+    string npcShortDesc = userToAttack->getUserName;
+    room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " just attacked " + userShortDesc+ "\n");
 
 
     string result = "";
 
     // inform user how much damage they did to the NPC
     string message = " dealt " + to_string(userDamage) + " to " + npcShortDesc + ". \n";
-    message += npcShortDesc + " has " + to_string( npcToAttack->getHealth( ) ) + " health remainin\n";
+    if(userToAttack -> isAlive()){
+      message += userShortDesc + " is still alive";
+    }
 
     room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + message );
 
@@ -106,15 +162,19 @@ string CommandParser::validateAttackNPCArgv(vector<string> &cmd){
       result += "you died\n";
     }
 
-    if( !npcToAttack->isAlive() ) {
-      room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " killed " + npcShortDesc);
-      result += "you killed " + npcShortDesc + "\n";
+    if( !userToAttack->isAlive() ) {
+      room->broadcastMessage(PlayerOne.get(), PlayerOne->getUserName() + " killed " + userShortDesc);
+      result += "you killed " + userShortDesc + "\n";
 
       PlayerOne->increaseXP( 100 );
+      int deadUserGold = userToAttack -> getGold();
+      int prizeGold = deadUserGold / 2;
+      userToAttack -> setGold(deadUserGold - prizeGold);
+      PlayerOne -> increaseGold(prizeGold);
     }
 
     return result;
-  }
+    // }
 }
 
 string CommandParser::validateTakeArgv(std::vector<std::string>& cmd){
